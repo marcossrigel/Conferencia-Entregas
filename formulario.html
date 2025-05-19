@@ -108,6 +108,23 @@
       background-color: #3399ff;
     }
 
+    .cancelar-link {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .cancelar-link a {
+      color: red;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 15px;
+      transition: color 0.3s ease;
+    }
+
+    .cancelar-link a:hover {
+      color: darkred;
+    }
+
     @media (max-width: 480px) {
       body {
         padding: 20px 10px;
@@ -143,7 +160,7 @@
 <body>
   <div class="container">
     <div class="main-title">Conferência de Entrega</div>
-    <form method="post" enctype="multipart/form-data" action="salvar_entrega.php">
+    <form method="post" enctype="multipart/form-data" action="formulario.php">
       <label>Fornecedor</label>
       <input type="text" name="fornecedor" placeholder="Fornecedor A">
 
@@ -171,9 +188,13 @@
 
       <label>Upload de Foto</label>
       <input type="file" name="foto">
-
-      <label>Assinatura do Recebedor</label>
-      <div class="assinatura">José Silva</div>
+      <br>
+      <h4 style="margin-top: 10px;">Assinatura Digital</h4>
+      <canvas id="signature-pad" width="280" height="100" style="border:1px solid #ccc; border-radius: 10px;"></canvas>
+      <div style="margin-top: 10px;">
+        <button onclick="clearSignature()" class="btn btn-secondary" style="margin-right: 1px;">Limpar</button>
+        <button onclick="saveSignature()" class="btn">Salvar Assinatura</button>
+      </div>
 
       <div class="rodape">
         <span>24/04/2024 16:30</span>
@@ -183,20 +204,40 @@
       <div class="button-group">
         <button type="submit">Confirmar Entrega</button>
       </div>
+
+      <div class="cancelar-link">
+        <a href="home.html">Cancelar</a>
+      </div>
     </form>
   </div>
 
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.6/dist/signature_pad.umd.min.js"></script>
 <script>
   const balancaInput = document.getElementById('peso_balanca');
   const etiquetaInput = document.getElementById('peso_etiqueta');
   const diferencaDiv = document.getElementById('diferenca_peso');
+  const canvas = document.getElementById('signature-pad');
+  const signaturePad = new SignaturePad(canvas);
+
+  function clearSignature() {
+    signaturePad.clear();
+  }
+
+  function saveSignature() {
+    if (signaturePad.isEmpty()) {
+      alert("Por favor, assine antes de salvar.");
+    } else {
+      const dataURL = signaturePad.toDataURL();
+      console.log("Assinatura em base64:", dataURL);
+      // Aqui você pode enviar o `dataURL` via AJAX para o backend (PHP, por exemplo) para salvar como imagem
+    }
+  }
 
   function calcularDiferenca() {
     const pesoBalanca = parseFloat(balancaInput.value.replace(',', '.')) || 0;
     const pesoEtiqueta = parseFloat(etiquetaInput.value.replace(',', '.')) || 0;
     const diferenca = (pesoEtiqueta - pesoBalanca).toFixed(2);
     diferencaDiv.textContent = `Diferença de peso: ${diferenca} kg`;
-
     diferencaDiv.style.color = diferenca < 0 ? 'red' : 'green';
   }
 
