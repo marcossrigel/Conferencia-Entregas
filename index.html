@@ -133,6 +133,11 @@ body {
   flex-wrap: nowrap; 
 }
 
+.button-group {
+    width: 100%;
+    align-items: center;
+  }
+
 @media (max-width: 480px) {
   .login-container {
     padding: 30px 20px;
@@ -163,7 +168,15 @@ body {
         <input type="text" id="login" name="nome" placeholder="Login" required>
         <input type="password" id="senha" name="senha" placeholder="Senha" required>
         <div class="divider"></div>
-        <button type="submit" class="btn">Entrar</button>
+
+        <div class="button-group">
+          <button type="submit" class="btn">Entrar</button>
+        </div>
+
+        <div class="button-group">
+          <a href="cadastro.html" class="btn btn-create">Criar uma conta</a>
+        </div>
+        
         <a href="#" class="forgot-password">Esqueceu a conta?</a>
       </form>
     </div>
