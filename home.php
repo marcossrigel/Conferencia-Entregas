@@ -232,9 +232,9 @@ a.texto-login:hover {
     </div>
 
     <div class="button-group">
-      <button href="#" type="submit" onclick="window.location.href='formulario.html';" class="btn">Entregas</button>
-      <button href="#" type="submit" onclick="window.location.href='visualizar.html';" class="btn btn-secondary">Minhas Entregas</button>
-      <a href="index.html" class="texto-login" onclick="window.location.href='index.html';" >Sair</a>
+      <a href="formulario.php" class="btn">Entregas</a>
+      <a href="visualizar.php" class="btn btn-secondary">Minhas Entregas</a>
+      <a href="index.php" class="texto-login">Sair</a>
     </div>
   </div>
 

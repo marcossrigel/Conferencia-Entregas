@@ -204,9 +204,9 @@
       <div class="button-group">
         <button type="submit">Confirmar Entrega</button>
       </div>
-
+      
       <div class="cancelar-link">
-        <a href="home.html">Cancelar</a>
+        <a href="home.php">Cancelar</a>
       </div>
     </form>
   </div>
