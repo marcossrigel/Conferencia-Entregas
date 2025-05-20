@@ -1,3 +1,35 @@
+<?php
+session_start();
+include_once("config.php");
+
+$erro_login = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $login = $_POST['email'];
+    $senha = $_POST['senha'];
+
+    $sql = "SELECT * FROM fornecedores WHERE email = ?";
+    $stmt = mysqli_prepare($conexao, $sql);
+    mysqli_stmt_bind_param($stmt, "s", $login);
+    mysqli_stmt_execute($stmt);
+    $resultado = mysqli_stmt_get_result($stmt);
+
+    if ($usuario = mysqli_fetch_assoc($resultado)) {
+        if (password_verify($senha, $usuario['senha'])) {
+            $_SESSION['id_fornecedor'] = $usuario['id'];
+            $_SESSION['nome'] = $usuario['nome_fantasia'];
+            header("Location: home.php");
+            exit;
+        } else {
+            $erro_login = "Senha incorreta.";
+        }
+    } else {
+        $erro_login = "Usuário não encontrado.";
+    }
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -146,29 +178,27 @@
   <div class="container">
     <div class="login-container">
       <div class="main-title">Entrar</div>
-      <form class="login-form" onsubmit="logar(); return false;">
-        <input type="text" id="login" name="nome" placeholder="Login" required>
+      
+      <form class="login-form" method="post">
+        <input type="text" id="login" name="email" placeholder="Email" required>
         <input type="password" id="senha" name="senha" placeholder="Senha" required>
         <div class="divider"></div>
 
         <button type="submit" class="btn btn-entrar">Entrar</button>
-        <a href="cadastro.html" class="btn btn-create" style="text-align: center; text-decoration: none;">Criar uma conta</a>
-        <a href="#" class="forgot-password">Esqueceu a conta?</a>
       </form>
+
+      <a href="cadastro.php" class="btn btn-create" style="text-align: center; text-decoration: none;">Criar uma conta</a>
+      <a href="#" class="forgot-password">Esqueceu a conta?</a>
+
     </div>
+    <?php if (!empty($erro_login)): ?>
+      <div style="color: red; text-align: center; margin-bottom: 10px;">
+        <?php echo $erro_login; ?>
+      </div>
+    <?php endif; ?>
+
   </div>
 
-  <script>
-    function logar() {
-      var login = document.getElementById('login').value;
-      var senha = document.getElementById('senha').value;
 
-      if (login === "admin" && senha === "senha1234") {
-        location.href = "home.html";
-      } else {
-        alert('Erro: Usuário ou Senha inválidos');
-      }
-    }
-  </script>
 </body>
 </html>
