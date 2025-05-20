@@ -42,6 +42,7 @@
     input[type="text"],
     input[type="email"],
     input[type="file"],
+    input[type="password"],
     input[type="number"] {
       width: 100%;
       padding: 10px;
@@ -111,36 +112,42 @@
 <body>
   <div class="container">
     <div class="main-title">Cadastro SICAF</div>
-    <form method="post" enctype="multipart/form-data" action="cadastro_sicaf.php">
-      <label>Razão Social</label>
-      <input type="text" name="razao_social" placeholder="Empresa Exemplo LTDA" required>
+    
+  <form method="post" enctype="multipart/form-data" action="cadastro_sicaf.php">
+  <label>Razão Social</label>
+  <input type="text" name="razao_social" placeholder="Empresa Exemplo LTDA" required>
 
-      <label>CNPJ</label>
-      <input type="text" name="cnpj" placeholder="00.000.000/0001-00" required>
+  <label>CNPJ</label>
+  <input type="text" name="cnpj" placeholder="00.000.000/0001-00" required>
 
-      <label>Nome Fantasia</label>
-      <input type="text" name="nome_fantasia" placeholder="Nome Fantasia" required>
+  <label>Nome Fantasia</label>
+  <input type="text" name="nome_fantasia" placeholder="Nome Fantasia" required>
 
-      <label>Email</label>
-      <input type="email" name="email" placeholder="email@empresa.com.br" required>
+  <label>Email</label>
+  <input type="email" name="email" placeholder="email@empresa.com.br" required>
+  
+  <label>Crie uma Senha</label>
+  <input type="password" name="senha" placeholder="Digite uma senha" required>
 
-      <label>Telefone</label>
-      <input type="text" name="telefone" placeholder="(00) 0000-0000" required>
+  <label>Telefone</label>
+  <input type="text" name="telefone" placeholder="(00) 0000-0000" required>
 
-      <label>Endereço</label>
-      <input type="text" name="endereco" placeholder="Rua, Número, Bairro" required>
+  <label>Endereço</label>
+  <input type="text" name="endereco" placeholder="Rua, Número, Bairro" required>
 
-      <label>Representante Legal</label>
-      <input type="text" name="representante" placeholder="Nome do Representante" required>
+  <label>Representante Legal</label>
+  <input type="text" name="representante" placeholder="Nome do Representante" required>  
 
-      <div class="button-group">
-        <button type="submit">Cadastrar Fornecedor</button>
-      </div>
-
-      <div class="cancelar-link">
-        <a href="index.html">Cancelar</a>
-      </div>
-    </form>
+  <div class="button-group">
+    <button type="submit">Cadastrar Fornecedor</button>
   </div>
+
+  <div class="cancelar-link">
+    <a href="index.html">Cancelar</a>
+  </div>
+</form>
+
+</div>
 </body>
+
 </html>

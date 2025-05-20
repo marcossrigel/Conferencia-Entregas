@@ -6,194 +6,169 @@
   <title>Login - Monitoramento Creches</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
-<style>
-:root {
-  --color-white: #ffffff;
-  --color-gray: #e3e8ec;
-  --color-dark: #1d2129;
-  --color-blue: #4da6ff;
-  --color-green: #42b72a;
-}
+  <style>
+    :root {
+      --color-white: #ffffff;
+      --color-gray: #e3e8ec;
+      --color-dark: #1d2129;
+      --color-blue: #4da6ff;
+      --color-green: #42b72a;
+    }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-body {
-  font-family: 'Poppins', sans-serif;
-  background-color: var(--color-gray);
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-}
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--color-gray);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
 
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-}
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
 
-.login-container {
-  background: var(--color-white);
-  padding: 40px 30px;
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 350px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
+    .login-container {
+      background: var(--color-white);
+      padding: 40px 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 350px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-.main-title {
-  font-size: 28px;
-  font-weight: 600;
-  color: var(--color-dark);
-  text-align: center;
-  margin-bottom: 30px;
-}
+    .main-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--color-dark);
+      text-align: center;
+      margin-bottom: 30px;
+    }
 
-.login-container:hover {
-  transform: none;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-}
+    .login-form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
 
-.login-form {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
+    .login-form input {
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+    }
 
-.login-form input {
-  padding: 12px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
-  outline: none;
-}
+    .btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 17px;
+      font-weight: bold;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.3s;
+    }
 
-.btn {
-  width: 100%;
-  padding: 12px;
-  font-size: 17px;
-  font-weight: bold;
-  color: white;
-  background-color: var(--color-blue);
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: background 0.3s;
-}
+    .btn-entrar {
+      background-color: var(--color-blue);
+    }
 
-.btn:hover {
-  background-color: #3399ff;
-}
+    .btn-entrar:hover {
+      background-color: #3399ff;
+    }
 
-.forgot-password {
-  font-size: 14px;
-  color: var(--color-blue);
-  text-decoration: none;
-  margin-top: 12px;
-  text-align: center;
-}
+    .btn-create {
+      background-color: var(--color-green);
+    }
 
-.forgot-password:hover {
-  text-decoration: underline;
-}
+    .btn-create:hover {
+      background-color: #36a420;
+    }
 
-.divider {
-  width: 100%;
-  height: 1px;
-  background: #dddfe2;
-  margin: 20px 0;
-}
+    .forgot-password {
+      font-size: 14px;
+      color: var(--color-blue);
+      text-decoration: none;
+      margin-top: 12px;
+      text-align: center;
+    }
 
-.btn-create {
-  background-color: var(--color-green);
-}
+    .forgot-password:hover {
+      text-decoration: underline;
+    }
 
-.btn-create:hover {
-  background-color: #36a420;
-}
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: #dddfe2;
+      margin: 20px 0;
+    }
 
-.linha {
-  display: flex;
-  margin-bottom: 20px;
-  flex-wrap: nowrap; 
-}
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 30px 20px;
+      }
 
-.button-group {
-    width: 100%;
-    align-items: center;
-  }
+      .main-title {
+        font-size: 22px;
+      }
 
-@media (max-width: 480px) {
-  .login-container {
-    padding: 30px 20px;
-  }
+      .btn {
+        font-size: 16px;
+      }
 
-  .main-title {
-    font-size: 22px;
-  }
-
-  .btn {
-    font-size: 16px;
-  }
-
-  .login-form input {
-    font-size: 15px;
-  }
-}
-</style>
-
+      .login-form input {
+        font-size: 15px;
+      }
+    }
+  </style>
 </head>
 
 <body>
   <div class="container">
     <div class="login-container">
-    
       <div class="main-title">Entrar</div>
       <form class="login-form" onsubmit="logar(); return false;">
         <input type="text" id="login" name="nome" placeholder="Login" required>
         <input type="password" id="senha" name="senha" placeholder="Senha" required>
         <div class="divider"></div>
 
-        <div class="button-group">
-          <button type="submit" class="btn">Entrar</button>
-        </div>
-
-        <div class="button-group">
-          <a href="cadastro.html" class="btn btn-create">Criar uma conta</a>
-        </div>
-        
+        <button type="submit" class="btn btn-entrar">Entrar</button>
+        <a href="cadastro.html" class="btn btn-create" style="text-align: center; text-decoration: none;">Criar uma conta</a>
         <a href="#" class="forgot-password">Esqueceu a conta?</a>
       </form>
     </div>
   </div>
 
   <script>
-      function logar() {
-        var login = document.getElementById('login').value;
-        var senha = document.getElementById('senha').value;
-    
-        if (login === "admin" && senha === "senha1234") {
-          location.href = "home.html";
-        } else {
-          alert('Erro: Usuário ou Senha inválidos');
-        }
-      }
-    </script>
+    function logar() {
+      var login = document.getElementById('login').value;
+      var senha = document.getElementById('senha').value;
 
+      if (login === "admin" && senha === "senha1234") {
+        location.href = "home.html";
+      } else {
+        alert('Erro: Usuário ou Senha inválidos');
+      }
+    }
+  </script>
 </body>
 </html>
