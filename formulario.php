@@ -2,9 +2,7 @@
 session_start();
 include("config.php");
 
-// Verifica se o formulário foi enviado
 if (isset($_POST['submit'])) {
-    // Garante que o usuário está logado
     if (!isset($_SESSION['id_fornecedor'])) {
         echo "Acesso não autorizado. Faça login.";
         exit;
@@ -58,7 +56,7 @@ if (isset($_POST['submit'])) {
     );
 
     if ($stmt->execute()) {
-        echo "<script>alert('Dados inseridos com sucesso!'); window.location.href='formulario.php';</script>";
+        $sucesso = true;
     } else {
         echo "Erro ao inserir: " . $stmt->error;
     }
@@ -81,6 +79,9 @@ if (isset($_POST['submit'])) {
       align-items: center;
       padding: 40px 20px;
       min-height: 100vh;
+    }
+    *, *::before, *::after {
+      box-sizing: border-box;
     }
     .container {
       background-color: #fff;
@@ -114,11 +115,15 @@ if (isset($_POST['submit'])) {
     }
     .row {
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
       margin-top: 10px;
     }
     .row .col {
       flex: 1;
+    }
+    input, canvas, button {
+      max-width: 100%;
     }
     .button-group {
       text-align: center;
@@ -146,14 +151,85 @@ if (isset($_POST['submit'])) {
       font-weight: bold;
       text-decoration: none;
     }
+
+    .cancelar-link a {
+      display: inline-block;
+      padding: 10px 20px;
+      color: red;
+      font-weight: bold;
+      text-decoration: none;
+      background-color: #f9dede;
+      border-radius: 8px;
+    }
+
     @media (max-width: 480px) {
       .row {
         flex-direction: column;
       }
+
+      body {
+        padding: 20px 10px;
+      }
+
+      .container {
+        padding: 20px;
+      }
+
+      .main-title {
+        font-size: 18px;
+      }
+
+      label {
+        font-size: 14px;
+      }
     }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .modal-content h2 {
+      color: green;
+      margin-bottom: 20px;
+    }
+
+    .modal-content a {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #4da6ff;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .modal-content a:hover {
+      background-color: #3399ff;
+    }
+
   </style>
 </head>
 <body>
+  <?php $sucesso = isset($sucesso) && $sucesso === true; ?>
 
   <div class="container">
     <div class="main-title">Conferência de Entrega</div>
@@ -218,6 +294,15 @@ if (isset($_POST['submit'])) {
       </div>
     </form>
   </div>
+
+  <?php if ($sucesso): ?>
+  <div class="modal" id="successModal" style="display: flex;">
+    <div class="modal-content">
+      <h2>✅ Dados inseridos com sucesso!</h2>
+      <a href="formulario.php">Fechar</a>
+    </div>
+  </div>
+  <?php endif; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.6/dist/signature_pad.umd.min.js"></script>
 <script>
