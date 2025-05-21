@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($usuario = mysqli_fetch_assoc($resultado)) {
         if (password_verify($senha, $usuario['senha'])) {
             $_SESSION['id_fornecedor'] = $usuario['id'];
-            $_SESSION['nome'] = $usuario['nome_fantasia'];
+            $_SESSION['nome_fantasia'] = $usuario['nome_fantasia'];
             header("Location: home.php");
             exit;
         } else {
@@ -28,7 +28,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="pt-br">

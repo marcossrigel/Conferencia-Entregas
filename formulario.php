@@ -1,3 +1,69 @@
+<?php 
+session_start();
+include("config.php");
+
+// Verifica se o formulário foi enviado
+if (isset($_POST['submit'])) {
+    // Garante que o usuário está logado
+    if (!isset($_SESSION['id_fornecedor'])) {
+        echo "Acesso não autorizado. Faça login.";
+        exit;
+    }
+
+    $id_fornecedor = $_SESSION['id_fornecedor'];
+    $responsavel = $_POST['responsavel'];
+    $produto = $_POST['produto'];
+    $quantidade = $_POST['quantidade'];
+    $peso_etiqueta = $_POST['peso_etiqueta'];
+    $peso_balanca = $_POST['peso_balanca'];
+    $tara = $_POST['tara'];
+    $peso_liquido = $_POST['peso_liquido'];
+    $divergencia = $_POST['divergencia'];
+    $observacoes = $_POST['observacoes'];
+
+    // Upload da foto
+    $nome_arquivo = '';
+    if (isset($_FILES['foto']) && $_FILES['foto']['error'] === 0) {
+        $nome_arquivo = 'foto_' . time() . '_' . basename($_FILES['foto']['name']);
+        $caminho_destino = 'uploads/' . $nome_arquivo;
+        move_uploaded_file($_FILES['foto']['tmp_name'], $caminho_destino);
+    }
+
+    // Assinatura digital
+    $assinatura_base64 = '';
+    if (!empty($_POST['assinatura_base64'])) {
+        $assinatura_base64 = str_replace('data:image/png;base64,', '', $_POST['assinatura_base64']);
+        $dados = base64_decode($assinatura_base64);
+        $nome_arquivo_assinatura = 'assinatura_' . time() . '.png';
+        $caminho_assinatura = 'uploads/' . $nome_arquivo_assinatura;
+        if (file_put_contents($caminho_assinatura, $dados)) {
+            $assinatura_base64 = $nome_arquivo_assinatura;
+        }
+    }
+
+    // Inserção no banco
+    $stmt = $conexao->prepare("
+        INSERT INTO entregas (
+            id_fornecedores, responsavel_recebimento, produto, quantidade_pedida,
+            peso_etiqueta, peso_balanca, tara, peso_liquido, divergencia,
+            observacoes, foto, assinatura_base64
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ");
+    $stmt->bind_param(
+        "isssssssssss",
+        $id_fornecedor, $responsavel, $produto, $quantidade, $peso_etiqueta,
+        $peso_balanca, $tara, $peso_liquido, $divergencia, $observacoes,
+        $nome_arquivo, $assinatura_base64
+    );
+
+    if ($stmt->execute()) {
+        echo "<script>alert('Dados inseridos com sucesso!'); window.location.href='formulario.php';</script>";
+    } else {
+        echo "Erro ao inserir: " . $stmt->error;
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -15,7 +81,6 @@
       padding: 40px 20px;
       min-height: 100vh;
     }
-
     .container {
       background-color: #fff;
       border-radius: 15px;
@@ -24,21 +89,18 @@
       max-width: 500px;
       width: 100%;
     }
-
     .main-title {
       font-size: 22px;
       font-weight: bold;
       text-align: center;
       margin-bottom: 20px;
     }
-
     label {
       display: block;
       margin-top: 15px;
       margin-bottom: 5px;
       font-size: 15px;
     }
-
     input[type="text"],
     input[type="number"],
     input[type="file"] {
@@ -49,49 +111,18 @@
       font-size: 15px;
       box-sizing: border-box;
     }
-
     .row {
       display: flex;
       gap: 10px;
       margin-top: 10px;
     }
-
     .row .col {
       flex: 1;
     }
-
-    .diferenca {
-      color: red;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-
-    .assinatura {
-      font-family: 'Courier New', monospace;
-      font-size: 18px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      background: #f8f8f8;
-      text-align: center;
-      margin-top: 10px;
-    }
-
-    .rodape {
-      font-size: 13px;
-      margin-top: 15px;
-      color: #444;
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 5px;
-    }
-
     .button-group {
       text-align: center;
       margin-top: 25px;
     }
-
     .button-group button {
       padding: 12px 20px;
       font-size: 16px;
@@ -101,110 +132,87 @@
       border: none;
       border-radius: 10px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
-
     .button-group button:hover {
       background-color: #3399ff;
     }
-
     .cancelar-link {
       text-align: center;
       margin-top: 15px;
     }
-
     .cancelar-link a {
       color: red;
-      text-decoration: none;
       font-weight: bold;
-      font-size: 15px;
-      transition: color 0.3s ease;
+      text-decoration: none;
     }
-
-    .cancelar-link a:hover {
-      color: darkred;
-    }
-
     @media (max-width: 480px) {
-      body {
-        padding: 20px 10px;
-      }
-
-      .container {
-        padding: 20px;
-      }
-
-      .main-title {
-        font-size: 20px;
-      }
-
       .row {
         flex-direction: column;
-      }
-
-      .btn-secundario {
-        width: 100%;
-        margin: 10px 0 0;
-      }
-
-      .assinatura {
-        font-size: 16px;
-      }
-
-      .button-group button {
-        width: 100%;
       }
     }
   </style>
 </head>
 <body>
+
   <div class="container">
     <div class="main-title">Conferência de Entrega</div>
-    <form method="post" enctype="multipart/form-data" action="formulario.php">
-      <label>Fornecedor</label>
-      <input type="text" name="fornecedor" placeholder="Fornecedor A">
+    
+    <form method="POST" enctype="multipart/form-data" onsubmit="return salvarAssinaturaAntesDeEnviar()">
+      <p><strong>Fornecedor:</strong> <?= isset($_SESSION['nome_fantasia']) ? htmlspecialchars($_SESSION['nome_fantasia']) : 'Não identificado' ?></p>
+
+      <label>Responsável Recebimento</label>
+      <input type="text" name="responsavel" required>
 
       <label>Produto</label>
-      <input type="text" name="produto" placeholder="123456 Produto Exemplo">
+      <input type="text" name="produto" required>
 
       <label>Quantidade Pedida</label>
-      <input type="number" name="quantidade" placeholder="10">
+      <input type="number" name="quantidade" required>
 
-        <div class="row">
-        <div class="col">
-          <label>Peso da Balança</label>
-          <input type="text" id="peso_balanca" name="peso_balanca" placeholder="8.4 kg">
-        </div>
+      <div class="row">
         <div class="col">
           <label>Peso da Etiqueta</label>
-          <input type="text" id="peso_etiqueta" name="peso_etiqueta" placeholder="10 kg">
+          <input type="text" id="peso_etiqueta" name="peso_etiqueta">
+        </div>
+        <div class="col">
+          <label>Peso da Balança</label>
+          <input type="text" id="peso_balanca" name="peso_balanca">
         </div>
       </div>
 
-    <div class="diferenca" id="diferenca_peso">Diferença de peso: </div>
+      <div class="row">
+        <div class="col">
+          <label>Tara</label>
+          <input type="text" name="tara">
+        </div>
+        <div class="col">
+          <label>Peso Líquido</label>
+          <input type="text" name="peso_liquido">
+        </div>
+      </div>
 
       <label>Divergência</label>
-      <input type="text" name="divergencia" placeholder="Produto avariado">
+      <input type="text" name="divergencia">
+
+      <label>Observações</label>
+      <input type="text" name="observacoes">
 
       <label>Upload de Foto</label>
       <input type="file" name="foto">
-      <br>
-      <h4 style="margin-top: 10px;">Assinatura Digital</h4>
-      <canvas id="signature-pad" width="280" height="100" style="border:1px solid #ccc; border-radius: 10px;"></canvas>
-      <div style="margin-top: 10px;">
-        <button onclick="clearSignature()" class="btn btn-secondary" style="margin-right: 1px;">Limpar</button>
-        <button onclick="saveSignature()" class="btn">Salvar Assinatura</button>
-      </div>
 
-      <div class="rodape">
-        <span>24/04/2024 16:30</span>
-        <span>51.1041, -0.5870</span>
+      <h4 style="margin-top: 10px;">Assinatura Digital</h4>
+      <canvas id="signature-pad" width="290" height="100" style="border:1px solid #ccc; border-radius:10px;"></canvas>
+      <input type="hidden" name="assinatura_base64" id="assinatura_base64">
+      
+      <div style="margin-top: 10px;">
+        <button onclick="clearSignature()" type="button">Limpar</button>
+        <button onclick="saveSignature()" type="button">Salvar Assinatura</button>
       </div>
 
       <div class="button-group">
-        <button type="submit">Confirmar Entrega</button>
+        <button type="submit" name="submit">Confirmar Entrega</button>
       </div>
-      
+
       <div class="cancelar-link">
         <a href="home.php">Cancelar</a>
       </div>
@@ -213,9 +221,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.6/dist/signature_pad.umd.min.js"></script>
 <script>
-  const balancaInput = document.getElementById('peso_balanca');
-  const etiquetaInput = document.getElementById('peso_etiqueta');
-  const diferencaDiv = document.getElementById('diferenca_peso');
   const canvas = document.getElementById('signature-pad');
   const signaturePad = new SignaturePad(canvas);
 
@@ -224,25 +229,18 @@
   }
 
   function saveSignature() {
+    const dataURL = signaturePad.toDataURL('image/png');
+    document.getElementById('assinatura_base64').value = dataURL;
+  }
+
+  function salvarAssinaturaAntesDeEnviar() {
     if (signaturePad.isEmpty()) {
-      alert("Por favor, assine antes de salvar.");
-    } else {
-      const dataURL = signaturePad.toDataURL();
-      console.log("Assinatura em base64:", dataURL);
-      // Aqui você pode enviar o `dataURL` via AJAX para o backend (PHP, por exemplo) para salvar como imagem
+      alert("Por favor, assine antes de enviar.");
+      return false;
     }
+    saveSignature();
+    return true;
   }
-
-  function calcularDiferenca() {
-    const pesoBalanca = parseFloat(balancaInput.value.replace(',', '.')) || 0;
-    const pesoEtiqueta = parseFloat(etiquetaInput.value.replace(',', '.')) || 0;
-    const diferenca = (pesoEtiqueta - pesoBalanca).toFixed(2);
-    diferencaDiv.textContent = `Diferença de peso: ${diferenca} kg`;
-    diferencaDiv.style.color = diferenca < 0 ? 'red' : 'green';
-  }
-
-  balancaInput.addEventListener('input', calcularDiferenca);
-  etiquetaInput.addEventListener('input', calcularDiferenca);
 </script>
 
 </body>
