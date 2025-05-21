@@ -11,7 +11,7 @@ if (isset($_POST['submit'])) {
     }
 
     $id_fornecedor = $_SESSION['id_fornecedor'];
-    $fornecedor = isset($_SESSION['nome_fantasia']) ? $_SESSION['nome_fantasia'] : 'Desconhecido';
+    $fornecedor = isset($_SESSION['fornecedor']) ? $_SESSION['fornecedor'] : 'Desconhecido';
     $responsavel = $_POST['responsavel'];
     $produto = $_POST['produto'];
     $quantidade = $_POST['quantidade'];
@@ -159,7 +159,7 @@ if (isset($_POST['submit'])) {
     <div class="main-title">Conferência de Entrega</div>
     
     <form method="POST" enctype="multipart/form-data" onsubmit="return salvarAssinaturaAntesDeEnviar()">
-      <p><strong>Fornecedor:</strong> <?= isset($_SESSION['nome_fantasia']) ? htmlspecialchars($_SESSION['nome_fantasia']) : 'Não identificado' ?></p>
+      <p><strong>Fornecedor:</strong> <?= isset($_SESSION['fornecedor']) ? htmlspecialchars($_SESSION['fornecedor']) : 'Não identificado' ?></p>
 
       <label>Responsável Recebimento</label>
       <input type="text" name="responsavel" required>

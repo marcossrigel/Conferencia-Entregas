@@ -17,18 +17,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($usuario = mysqli_fetch_assoc($resultado)) {
         if (password_verify($senha, $usuario['senha'])) {
             $_SESSION['id_fornecedor'] = $usuario['id'];
-            $_SESSION['nome_completo'] = $usuario['nome'] . ' ' . $usuario['sobrenome'];
+            $_SESSION['fornecedor'] = $usuario['fornecedor']; // <- aqui define o nome do fornecedor logado
             header("Location: home.php");
             exit;
-        } else {
+        }
+        else {
             $erro_login = "Senha incorreta.";
         }
-    } else {
+    } 
+    else {
         $erro_login = "Usuário não encontrado.";
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="pt-br">

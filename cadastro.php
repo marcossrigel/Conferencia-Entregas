@@ -4,15 +4,14 @@ include_once("config.php");
 $cadastro_sucesso = false;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nome = $_POST['nome'];
-    $sobrenome = $_POST['sobrenome'];
+    $fornecedor = $_POST['fornecedor'];
     $cpf = $_POST['cpf'];
     $senha = password_hash($_POST['senha'], PASSWORD_DEFAULT);
     $telefone = $_POST['telefone'];
 
-    $sql = "INSERT INTO fornecedores (nome, sobrenome, cpf, senha, telefone) VALUES (?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO fornecedores (fornecedor, cpf, senha, telefone) VALUES (?, ?, ?, ?)";
     $stmt = mysqli_prepare($conexao, $sql);
-    mysqli_stmt_bind_param($stmt, "sssss", $nome, $sobrenome, $cpf, $senha, $telefone);
+    mysqli_stmt_bind_param($stmt, "ssss", $fornecedor, $cpf, $senha, $telefone);
 
     if (mysqli_stmt_execute($stmt)) {
         $cadastro_sucesso = true;
@@ -182,11 +181,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <div class="main-title">Cadastro de Usuário</div>
 
   <form method="post" action="cadastro.php">
-    <label>Nome</label>
-    <input type="text" name="nome" required>
-
-    <label>Sobrenome</label>
-    <input type="text" name="sobrenome" required>
+    <label>Fornecedor</label>
+    <input type="text" name="fornecedor" required>
 
     <label>CPF</label>
     <input type="text" name="cpf" required>
