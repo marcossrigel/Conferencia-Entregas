@@ -5,19 +5,19 @@ include_once("config.php");
 $erro_login = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $login = $_POST['email'];
+    $cpf = $_POST['cpf'];
     $senha = $_POST['senha'];
 
-    $sql = "SELECT * FROM fornecedores WHERE email = ?";
+    $sql = "SELECT * FROM fornecedores WHERE cpf = ?";
     $stmt = mysqli_prepare($conexao, $sql);
-    mysqli_stmt_bind_param($stmt, "s", $login);
+    mysqli_stmt_bind_param($stmt, "s", $cpf);
     mysqli_stmt_execute($stmt);
     $resultado = mysqli_stmt_get_result($stmt);
 
     if ($usuario = mysqli_fetch_assoc($resultado)) {
         if (password_verify($senha, $usuario['senha'])) {
             $_SESSION['id_fornecedor'] = $usuario['id'];
-            $_SESSION['nome_fantasia'] = $usuario['nome_fantasia'];
+            $_SESSION['nome_completo'] = $usuario['nome'] . ' ' . $usuario['sobrenome'];
             header("Location: home.php");
             exit;
         } else {
@@ -28,6 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -179,12 +180,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <div class="main-title">Entrar</div>
       
       <form class="login-form" method="post">
-        <input type="text" id="login" name="email" placeholder="Email" required>
+        <input type="text" id="cpf" name="cpf" placeholder="CPF" required>
         <input type="password" id="senha" name="senha" placeholder="Senha" required>
         <div class="divider"></div>
-
         <button type="submit" class="btn btn-entrar">Entrar</button>
       </form>
+
 
       <a href="cadastro.php" class="btn btn-create" style="text-align: center; text-decoration: none;">Criar uma conta</a>
       <a href="#" class="forgot-password">Esqueceu a conta?</a>

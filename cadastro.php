@@ -1,25 +1,18 @@
 <?php
-include_once("config.php"); // conexão com o banco
+include_once("config.php"); 
 
 $cadastro_sucesso = false;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $razao = $_POST['razao_social'];
-    $cnpj = $_POST['cnpj'];
-    $fantasia = $_POST['nome_fantasia'];
-    $email = $_POST['email'];
+    $nome = $_POST['nome'];
+    $sobrenome = $_POST['sobrenome'];
+    $cpf = $_POST['cpf'];
     $senha = password_hash($_POST['senha'], PASSWORD_DEFAULT);
     $telefone = $_POST['telefone'];
-    $endereco = $_POST['endereco'];
-    $representante = $_POST['representante'];
 
-    $sql = "INSERT INTO fornecedores 
-        (razao_social, cnpj, nome_fantasia, email, senha, telefone, endereco, representante)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
+    $sql = "INSERT INTO fornecedores (nome, sobrenome, cpf, senha, telefone) VALUES (?, ?, ?, ?, ?)";
     $stmt = mysqli_prepare($conexao, $sql);
-    mysqli_stmt_bind_param($stmt, "ssssssss", 
-        $razao, $cnpj, $fantasia, $email, $senha, $telefone, $endereco, $representante);
+    mysqli_stmt_bind_param($stmt, "sssss", $nome, $sobrenome, $cpf, $senha, $telefone);
 
     if (mysqli_stmt_execute($stmt)) {
         $cadastro_sucesso = true;
@@ -186,35 +179,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <?php endif; ?>
 
 <div class="container">
-  <div class="main-title">Cadastro SICAF</div>
+  <div class="main-title">Cadastro de Usuário</div>
 
-  <form method="post" enctype="multipart/form-data" action="cadastro.php">
-    <label>Razão Social</label>
-    <input type="text" name="razao_social" required>
+  <form method="post" action="cadastro.php">
+    <label>Nome</label>
+    <input type="text" name="nome" required>
 
-    <label>CNPJ</label>
-    <input type="text" name="cnpj" required>
+    <label>Sobrenome</label>
+    <input type="text" name="sobrenome" required>
 
-    <label>Nome Fantasia</label>
-    <input type="text" name="nome_fantasia" required>
-
-    <label>Email</label>
-    <input type="email" name="email" required>
-
-    <label>Crie uma Senha</label>
-    <input type="password" name="senha" required>
+    <label>CPF</label>
+    <input type="text" name="cpf" required>
 
     <label>Telefone</label>
     <input type="text" name="telefone" required>
 
-    <label>Endereço</label>
-    <input type="text" name="endereco" required>
-
-    <label>Representante Legal</label>
-    <input type="text" name="representante" required>
+    <label>Senha</label>
+    <input type="password" name="senha" required>
 
     <div class="button-group">
-      <button type="submit">Cadastrar Fornecedor</button>
+      <button type="submit">Cadastrar</button>
     </div>
 
     <div class="cancelar-link">

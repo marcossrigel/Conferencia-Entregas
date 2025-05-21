@@ -11,6 +11,7 @@ if (isset($_POST['submit'])) {
     }
 
     $id_fornecedor = $_SESSION['id_fornecedor'];
+    $fornecedor = isset($_SESSION['nome_fantasia']) ? $_SESSION['nome_fantasia'] : 'Desconhecido';
     $responsavel = $_POST['responsavel'];
     $produto = $_POST['produto'];
     $quantidade = $_POST['quantidade'];
@@ -44,16 +45,16 @@ if (isset($_POST['submit'])) {
     // Inserção no banco
     $stmt = $conexao->prepare("
         INSERT INTO entregas (
-            id_fornecedores, responsavel_recebimento, produto, quantidade_pedida,
+            id_fornecedores, fornecedor, responsavel_recebimento, produto, quantidade_pedida,
             peso_etiqueta, peso_balanca, tara, peso_liquido, divergencia,
             observacoes, foto, assinatura_base64
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     $stmt->bind_param(
-        "isssssssssss",
-        $id_fornecedor, $responsavel, $produto, $quantidade, $peso_etiqueta,
-        $peso_balanca, $tara, $peso_liquido, $divergencia, $observacoes,
-        $nome_arquivo, $assinatura_base64
+        "isssissssssss",
+        $id_fornecedor, $fornecedor, $responsavel, $produto, $quantidade,
+        $peso_etiqueta, $peso_balanca, $tara, $peso_liquido, $divergencia,
+        $observacoes, $nome_arquivo, $assinatura_base64
     );
 
     if ($stmt->execute()) {
@@ -206,7 +207,6 @@ if (isset($_POST['submit'])) {
       
       <div style="margin-top: 10px;">
         <button onclick="clearSignature()" type="button">Limpar</button>
-        <button onclick="saveSignature()" type="button">Salvar Assinatura</button>
       </div>
 
       <div class="button-group">
