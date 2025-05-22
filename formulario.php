@@ -1,5 +1,6 @@
 <?php 
 session_start();
+$dataHoraRegistro = date("Y-m-d H:i:s");
 include("config.php");
 
 if (isset($_POST['submit'])) {
@@ -42,18 +43,19 @@ if (isset($_POST['submit'])) {
 
     // Inserção no banco
     $stmt = $conexao->prepare("
-        INSERT INTO entregas (
-            id_fornecedores, fornecedor, responsavel_recebimento, produto, quantidade_pedida,
-            peso_etiqueta, peso_balanca, tara, peso_liquido, divergencia,
-            observacoes, foto, assinatura_base64
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ");
-    $stmt->bind_param(
-        "isssissssssss",
-        $id_fornecedor, $fornecedor, $responsavel, $produto, $quantidade,
-        $peso_etiqueta, $peso_balanca, $tara, $peso_liquido, $divergencia,
-        $observacoes, $nome_arquivo, $assinatura_base64
-    );
+    INSERT INTO entregas (
+        id_fornecedores, fornecedor, responsavel_recebimento, produto, quantidade_pedida,
+        peso_etiqueta, peso_balanca, tara, peso_liquido, divergencia,
+        observacoes, foto, assinatura_base64, data_registro
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ");
+
+      $stmt->bind_param(
+          "isssisssssssss",
+          $id_fornecedor, $fornecedor, $responsavel, $produto, $quantidade,
+          $peso_etiqueta, $peso_balanca, $tara, $peso_liquido, $divergencia,
+          $observacoes, $nome_arquivo, $assinatura_base64, $_POST['data_registro']
+      );
 
     if ($stmt->execute()) {
         $sucesso = true;
@@ -235,6 +237,10 @@ if (isset($_POST['submit'])) {
     <div class="main-title">Conferência de Entrega</div>
     
     <form method="POST" enctype="multipart/form-data" onsubmit="return salvarAssinaturaAntesDeEnviar()">
+      <p style="text-align: right; font-size: 12px; color: gray;">
+        Registro em: <?= date("d/m/Y H:i:s") ?>
+      </p>
+      <input type="hidden" name="data_registro" value="<?= $dataHoraRegistro ?>">
       <p><strong>Fornecedor:</strong> <?= isset($_SESSION['fornecedor']) ? htmlspecialchars($_SESSION['fornecedor']) : 'Não identificado' ?></p>
 
       <label>Responsável Recebimento</label>
@@ -267,6 +273,9 @@ if (isset($_POST['submit'])) {
           <input type="text" name="peso_liquido">
         </div>
       </div>
+
+      <label>Peso Bruto (auto)</label>
+      <input type="text" id="peso_bruto" disabled style="background-color: #f0f0f0;">
 
       <label>Divergência</label>
       <input type="text" name="divergencia">
@@ -306,6 +315,10 @@ if (isset($_POST['submit'])) {
 
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.6/dist/signature_pad.umd.min.js"></script>
 <script>
+  const taraInput = document.getElementById('tara');
+  const liquidoInput = document.getElementById('peso_liquido');
+  const brutoInput = document.getElementById('peso_bruto');
+
   const canvas = document.getElementById('signature-pad');
   const signaturePad = new SignaturePad(canvas);
 
@@ -326,6 +339,17 @@ if (isset($_POST['submit'])) {
     saveSignature();
     return true;
   }
+
+   function atualizarPesoBruto() {
+    const tara = parseFloat(taraInput.value.replace(',', '.')) || 0;
+    const liquido = parseFloat(liquidoInput.value.replace(',', '.')) || 0;
+    const bruto = tara + liquido;
+    brutoInput.value = bruto.toFixed(2).replace('.', ',');
+  }
+
+  taraInput.addEventListener('input', atualizarPesoBruto);
+  liquidoInput.addEventListener('input', atualizarPesoBruto);
+
 </script>
 
 </body>

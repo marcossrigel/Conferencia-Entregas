@@ -2,7 +2,6 @@
 session_start();
 include_once("config.php");
 
-// Verifica login
 if (!isset($_SESSION['id_fornecedor'])) {
     header("Location: index.php");
     exit;
@@ -11,7 +10,6 @@ if (!isset($_SESSION['id_fornecedor'])) {
 $id_fornecedor = $_SESSION['id_fornecedor'];
 $fornecedor = $_SESSION['fornecedor'];
 
-// Buscar entregas do fornecedor
 $query = "SELECT * FROM entregas WHERE id_fornecedores = ? ORDER BY id DESC";
 $stmt = $conexao->prepare($query);
 $stmt->bind_param("i", $id_fornecedor);
