@@ -1,3 +1,55 @@
+<?php
+session_start();
+include("config.php");
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id_fornecedor = $_SESSION['id_fornecedor'] ?? null;
+    $fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
+
+    $responsavel = $_POST['responsavel'] ?? '';
+    $produto = $_POST['produto'] ?? '';
+    $quantidade = $_POST['quantidade'] ?? '';
+    $peso_etiqueta = $_POST['peso_etiqueta'] ?? '';
+    $peso_balanca = $_POST['peso_balanca'] ?? '';
+    $tara = $_POST['tara'] ?? '';
+    $peso_liquido = $_POST['peso_liquido'] ?? '';
+    $divergencia = $_POST['divergencia'] ?? '';
+    $observacoes = $_POST['observacoes'] ?? '';
+    $assinatura = $_POST['assinatura_base64'] ?? '';
+    $data_hora = date("Y-m-d H:i:s");
+    $data_registro = date("Y-m-d H:i:s");
+
+    $foto = '';
+    if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+        $foto_nome = uniqid() . '_' . $_FILES['foto']['name'];
+        move_uploaded_file($_FILES['foto']['tmp_name'], 'uploads/' . $foto_nome);
+        $foto = $foto_nome;
+    }
+
+    $stmt = $conexao->prepare("INSERT INTO entregas 
+    (id_fornecedores, fornecedor, responsavel_recebimento, produto, quantidade_pedida, peso_etiqueta, peso_balanca, tara, peso_liquido, divergencia, observacoes, foto, assinatura_base64, data_hora, data_registro)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+    $stmt->bind_param("isssddddddsssss",
+        $id_fornecedor, $fornecedor, $responsavel, $produto, $quantidade, $peso_etiqueta,
+        $peso_balanca, $tara, $peso_liquido, $divergencia,
+        $observacoes, $foto, $assinatura, $data_hora, $data_registro);
+
+    if ($stmt->execute()) {
+        echo "Registro inserido com sucesso.";
+    } else {
+        echo "Erro: " . $stmt->error;
+    }
+
+    $stmt->close();
+    $conexao->close();
+}
+
+// ✅ CORREÇÃO: usa a variável de sessão correta
+$nome_fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
+?>
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -14,6 +66,7 @@
       align-items: center;
       padding: 40px 20px;
       min-height: 100vh;
+      box-sizing: border-box;
     }
     .container {
       background-color: #fff;
@@ -22,6 +75,7 @@
       padding: 30px;
       max-width: 500px;
       width: 100%;
+      box-sizing: border-box;
     }
     .main-title {
       font-size: 22px;
@@ -37,34 +91,31 @@
     }
     input[type="text"],
     input[type="number"],
-    input[type="file"] {
+    input[type="file"],
+    textarea {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 8px;
       font-size: 15px;
+      box-sizing: border-box;
     }
     .row {
       display: flex;
       flex-direction: row;
       justify-content: space-between;
       gap: 16px;
+      flex-wrap: wrap;
     }
     .row .col {
-      flex: 1;
+      flex: 1 1 100%;
       display: flex;
       flex-direction: column;
     }
-    .row .col input {
-      margin-bottom: 10px;
-    }
-
-    .row .col {
-      padding-right: 8px;
-    }
-
-    .row .col:last-child {
-      padding-right: 0;
+    @media (min-width: 600px) {
+      .row .col {
+        flex: 1;
+      }
     }
     .button-group {
       text-align: center;
@@ -101,6 +152,8 @@
       border-radius: 8px;
     }
     canvas {
+      width: 100% !important;
+      height: auto;
       border: 1px solid #ccc;
       border-radius: 10px;
       margin-top: 10px;
@@ -108,29 +161,19 @@
   </style>
 </head>
 <body>
-<?php
-  session_start();
-  include("config.php");
-  $nome_fornecedor = 'Não identificado';
-  if (isset($_SESSION['id_fornecedor'])) {
-    $stmt = $conexao->prepare("SELECT fornecedor FROM fornecedores WHERE id = ?");
-    $stmt->bind_param("i", $_SESSION['id_fornecedor']);
-    $stmt->execute();
-    $stmt->bind_result($nome_fornecedor);
-    $stmt->fetch();
-    $stmt->close();
-  }
-?>
   <div class="container">
     <div class="main-title">Conferência de Entrega</div>
-    <form onsubmit="return false">
+    <form method="POST" action="formulario.php" enctype="multipart/form-data">
       <p style="text-align: right; font-size: 12px; color: gray;">
         Registro em: <?= date("d/m/Y H:i:s") ?>
       </p>
       <p><strong>Fornecedor:</strong> <?= htmlspecialchars($nome_fornecedor) ?></p>
 
       <label>Responsável Recebimento</label>
-      <input type="text" name="responsavel" placeholder="Produto">
+      <input type="text" name="responsavel" placeholder="Nome">
+
+      <label>Produto</label>
+      <input type="text" name="produto" placeholder="Nome do produto">
 
       <label>Quantidade Pedida</label>
       <input type="number" name="quantidade">
@@ -138,31 +181,34 @@
       <div class="row">
         <div class="col">
           <label>Peso da Etiqueta</label>
-          <input type="text" id="peso_etiqueta">
+          <input type="text" name="peso_etiqueta" id="peso_etiqueta">
         </div>
         <div class="col">
           <label>Peso da Balança</label>
-          <input type="number" id="peso_balanca">
+          <input type="number" name="peso_balanca" id="peso_balanca">
         </div>
       </div>
 
       <label>Divergência</label>
       <label id="divergencia">---</label>
+      <input type="hidden" name="divergencia" id="divergencia_oculto">
 
       <div class="row">
         <div class="col">
           <label>Peso Líquido</label>
-          <input type="text" id="peso_liquido" readonly>
+          <input type="text" name="peso_liquido" id="peso_liquido" readonly>
         </div>
         <div class="col">
           <label>tara</label>
-          <input type="number" id="tara">
+          <input type="number" name="tara" id="tara">
         </div>
-
       </div>
 
       <label>Observações</label>
-      <input type="file">
+      <textarea name="observacoes" rows="4" placeholder="Digite aqui..."></textarea>
+
+      <label>Foto</label>
+      <input type="file" name="foto">
 
       <label>Assinatura Digital</label>
       <canvas id="signature-pad" width="400" height="150"></canvas>
@@ -172,11 +218,11 @@
       </div>
 
       <div class="button-group">
-        <button type="submit" onclick="saveSignature()">Confirmar Entrega</button>
+        <button type="submit" onclick="return saveSignature()">Confirmar Entrega</button>
       </div>
 
       <div class="cancelar-link">
-        <a href="#">Cancelar</a>
+        <a href="home.php">Cancelar</a>
       </div>
     </form>
   </div>
@@ -217,13 +263,15 @@
     }
 
     function saveSignature() {
+      document.getElementById('divergencia_oculto').value = divergenciaLabel.textContent;
+
       if (signaturePad.isEmpty()) {
         alert("Por favor, assine antes de confirmar.");
         return false;
       }
+
       const assinatura = signaturePad.toDataURL();
       document.getElementById('assinatura_base64').value = assinatura;
-      alert("Assinatura salva com sucesso (simula envio).");
       return true;
     }
   </script>
