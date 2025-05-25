@@ -139,10 +139,9 @@
         <p><strong>Foto:</strong><br><img src="uploads/<?= $entrega['foto'] ?>" width="200" style="margin-top:10px;"></p>
       <?php endif; ?>
       <?php if (!empty($entrega['assinatura_base64'])): ?>
-        <p><strong>Assinatura:</strong><br><img src="uploads/<?= $entrega['assinatura_base64'] ?>" width="200" style="margin-top:10px;"></p>
-
-        <a href="excluir_entrega.php?id=<?= $entrega['id'] ?>" onclick="return confirm('Deseja realmente excluir?');">🗑️ Excluir</a>
-
+        <p><strong>Assinatura:</strong><br>
+          <img src="uploads/<?= htmlspecialchars($entrega['assinatura_base64']) ?>" width="200">
+        </p>
       <?php endif; ?>
       
     </div>

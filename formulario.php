@@ -4,6 +4,18 @@ include("config.php");
 
 $registro_inserido = false;
 
+$assinatura_arquivo = '';
+$assinatura = $_POST['assinatura_base64'] ?? '';
+if (!empty($assinatura)) {
+    $data = explode(',', $assinatura);
+    if (count($data) == 2) {
+        $base64 = base64_decode($data[1]);
+        $assinatura_nome = 'assinatura_' . uniqid() . '.png';
+        file_put_contents('uploads/' . $assinatura_nome, $base64);
+        $assinatura_arquivo = $assinatura_nome;
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_fornecedor = $_SESSION['id_fornecedor'] ?? null;
     $fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
@@ -17,7 +29,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $peso_liquido = $_POST['peso_liquido'] ?? '';
     $divergencia = $_POST['divergencia'] ?? '';
     $observacoes = $_POST['observacoes'] ?? '';
-    $assinatura = $_POST['assinatura_base64'] ?? '';
     $data_hora = date("Y-m-d H:i:s");
     $data_registro = date("Y-m-d H:i:s");
 
@@ -35,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bind_param("isssddddddsssss",
         $id_fornecedor, $fornecedor, $responsavel, $produto, $quantidade, $peso_etiqueta,
         $peso_balanca, $tara, $peso_liquido, $divergencia,
-        $observacoes, $foto, $assinatura, $data_hora, $data_registro);
+        $observacoes, $foto, $assinatura_arquivo, $data_hora, $data_registro);
 
     $registro_inserido = false;
 
@@ -49,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $nome_fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
 ?>
 
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -57,8 +67,6 @@ $nome_fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Conferência de Entrega</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
-
-
 
   <style>
     body {
@@ -197,7 +205,8 @@ $nome_fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
 <body>
   <div class="container">
     <div class="main-title">Conferência de Entrega</div>
-    <form method="POST" action="formulario.php" enctype="multipart/form-data">
+
+    <form method="POST" action="formulario.php" enctype="multipart/form-data" onsubmit="return handleSubmit()">
       <p style="text-align: right; font-size: 12px; color: gray;">
         Registro em: <?= date("d/m/Y H:i:s") ?>
       </p>
@@ -252,7 +261,7 @@ $nome_fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
       </div>
 
       <div class="button-group">
-        <button type="submit" onclick="return saveSignature()">Confirmar Entrega</button>
+        <button type="submit">Confirmar Entrega</button>
       </div>
 
       <div class="cancelar-link">
@@ -303,6 +312,20 @@ $nome_fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
       signaturePad.clear();
     }
 
+    function handleSubmit() {
+      document.getElementById('divergencia_oculto').value = divergenciaLabel.textContent;
+
+      if (signaturePad.isEmpty()) {
+        alert("Por favor, assine antes de confirmar.");
+        return false;
+      }
+
+      const assinatura = signaturePad.toDataURL();
+      document.getElementById('assinatura_base64').value = assinatura;
+
+      return true; // tudo OK
+    }
+
     function saveSignature() {
       document.getElementById('divergencia_oculto').value = divergenciaLabel.textContent;
 
@@ -321,12 +344,13 @@ $nome_fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
     }
   </script>
 
-  <?php if ($registro_inserido): ?>
+<?php if ($registro_inserido): ?>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("sucessoModal").style.display = "flex";
   });
 </script>
 <?php endif; ?>
+
 </body>
 </html>
