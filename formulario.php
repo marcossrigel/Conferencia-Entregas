@@ -46,10 +46,25 @@
     }
     .row {
       display: flex;
-      gap: 10px;
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 16px;
     }
     .row .col {
       flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .row .col input {
+      margin-bottom: 10px;
+    }
+
+    .row .col {
+      padding-right: 8px;
+    }
+
+    .row .col:last-child {
+      padding-right: 0;
     }
     .button-group {
       text-align: center;
@@ -84,6 +99,11 @@
       font-weight: bold;
       background-color: #f0f0f0;
       border-radius: 8px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -122,7 +142,7 @@
         </div>
         <div class="col">
           <label>Peso da Balança</label>
-          <input type="text" id="peso_balanca">
+          <input type="number" id="peso_balanca">
         </div>
       </div>
 
@@ -134,17 +154,25 @@
           <label>Peso Líquido</label>
           <input type="text" id="peso_liquido" readonly>
         </div>
+        <div class="col">
+          <label>tara</label>
+          <input type="number" id="tara">
+        </div>
+
       </div>
 
       <label>Observações</label>
       <input type="file">
 
       <label>Assinatura Digital</label>
-      <input type="text" placeholder="(simulação de campo de assinatura)">
-      <textarea placeholder="(canvas)"></textarea>
+      <canvas id="signature-pad" width="400" height="150"></canvas>
+      <input type="hidden" id="assinatura_base64" name="assinatura_base64">
+      <div style="margin-top: 10px;">
+        <button type="button" onclick="clearSignature()">Limpar</button>
+      </div>
 
       <div class="button-group">
-        <button type="submit">Confirmar Entrega</button>
+        <button type="submit" onclick="saveSignature()">Confirmar Entrega</button>
       </div>
 
       <div class="cancelar-link">
@@ -153,6 +181,7 @@
     </form>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.6/dist/signature_pad.umd.min.js"></script>
   <script>
     const tara = 5.0;
     const pesoEtiquetaInput = document.getElementById('peso_etiqueta');
@@ -167,7 +196,7 @@
 
       pesoLiquidoInput.value = liquido.toFixed(1).replace('.', ',');
 
-      const diferenca = balanca - etiqueta;
+      const diferenca = etiqueta - balanca;
       if (diferenca < 0) {
         divergenciaLabel.textContent = "Não está ok";
         divergenciaLabel.style.color = "red";
@@ -179,6 +208,24 @@
 
     pesoEtiquetaInput.addEventListener('input', atualizarDivergencia);
     pesoBalancaInput.addEventListener('input', atualizarDivergencia);
+
+    const canvas = document.getElementById('signature-pad');
+    const signaturePad = new SignaturePad(canvas);
+
+    function clearSignature() {
+      signaturePad.clear();
+    }
+
+    function saveSignature() {
+      if (signaturePad.isEmpty()) {
+        alert("Por favor, assine antes de confirmar.");
+        return false;
+      }
+      const assinatura = signaturePad.toDataURL();
+      document.getElementById('assinatura_base64').value = assinatura;
+      alert("Assinatura salva com sucesso (simula envio).");
+      return true;
+    }
   </script>
 </body>
 </html>
