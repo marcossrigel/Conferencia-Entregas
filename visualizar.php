@@ -8,13 +8,21 @@
   }
 
   $id_fornecedor = $_SESSION['id_fornecedor'];
-  $fornecedor = $_SESSION['fornecedor'];
+  $tipo_usuario = $_SESSION['tipo_usuario'] ?? 'fornecedor';
 
-  $query = "SELECT * FROM entregas WHERE id_fornecedores = ? ORDER BY id DESC";
-  $stmt = $conexao->prepare($query);
-  $stmt->bind_param("i", $id_fornecedor);
-  $stmt->execute();
-  $resultado = $stmt->get_result();
+  if ($tipo_usuario === 'admin') {
+    // Admin vê tudo
+    $query = "SELECT * FROM entregas ORDER BY id DESC";
+    $stmt = $conexao->prepare($query);
+    $stmt->execute(); // ← ESSENCIAL AQUI
+} else {
+    // Fornecedor vê só as suas
+    $query = "SELECT * FROM entregas WHERE id_fornecedores = ? ORDER BY id DESC";
+    $stmt = $conexao->prepare($query);
+    $stmt->bind_param("i", $id_fornecedor);
+    $stmt->execute(); // ← ESSENCIAL AQUI TAMBÉM
+}
+$resultado = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -148,7 +156,7 @@
     <?php endwhile; ?>
     
     <p>
-      <a href="gerar_pdf.php?id=<?= $entrega['id'] ?>" target="_blank">📄 Gerar PDF</a>
+      <a href="gerar_pdf.php" target="_blank">📄 Gerar PDF</a>
     </p>
 
 

@@ -18,6 +18,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (password_verify($senha, $usuario['senha'])) {
             $_SESSION['id_fornecedor'] = $usuario['id'];
             $_SESSION['fornecedor'] = $usuario['fornecedor']; // <- aqui define o nome do fornecedor logado
+            $_SESSION['tipo_usuario'] = $usuario['tipo'];
+
             header("Location: home.php");
             exit;
         }
