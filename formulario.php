@@ -2,6 +2,8 @@
 session_start();
 include("config.php");
 
+$registro_inserido = false;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_fornecedor = $_SESSION['id_fornecedor'] ?? null;
     $fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
@@ -35,17 +37,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $peso_balanca, $tara, $peso_liquido, $divergencia,
         $observacoes, $foto, $assinatura, $data_hora, $data_registro);
 
+    $registro_inserido = false;
+
     if ($stmt->execute()) {
-        echo "Registro inserido com sucesso.";
-    } else {
-        echo "Erro: " . $stmt->error;
+        $registro_inserido = true;
     }
 
     $stmt->close();
     $conexao->close();
 }
-
-// ✅ CORREÇÃO: usa a variável de sessão correta
 $nome_fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
 ?>
 
@@ -57,6 +57,9 @@ $nome_fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Conferência de Entrega</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+
+
+
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -112,6 +115,37 @@ $nome_fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
       display: flex;
       flex-direction: column;
     }
+    .modal {
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: white;
+      padding: 20px 30px;
+      border-radius: 10px;
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .modal-content button {
+      margin-top: 15px;
+      padding: 8px 20px;
+      font-weight: bold;
+      background-color: #4da6ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
     @media (min-width: 600px) {
       .row .col {
         flex: 1;
@@ -181,11 +215,11 @@ $nome_fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
       <div class="row">
         <div class="col">
           <label>Peso da Etiqueta</label>
-          <input type="text" name="peso_etiqueta" id="peso_etiqueta">
+          <input type="number" name="peso_etiqueta" id="peso_etiqueta" step="0.01">
         </div>
         <div class="col">
           <label>Peso da Balança</label>
-          <input type="number" name="peso_balanca" id="peso_balanca">
+          <input type="number" name="peso_balanca" id="peso_balanca" step="0.01">
         </div>
       </div>
 
@@ -226,6 +260,13 @@ $nome_fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
       </div>
     </form>
   </div>
+  
+    <div id="sucessoModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <p>Registro inserido com sucesso.</p>
+      <button onclick="fecharModal()">OK</button>
+    </div>
+    </div>
 
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.6/dist/signature_pad.umd.min.js"></script>
   <script>
@@ -274,6 +315,18 @@ $nome_fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
       document.getElementById('assinatura_base64').value = assinatura;
       return true;
     }
+
+    function fecharModal() {
+      document.getElementById("sucessoModal").style.display = "none";
+    }
   </script>
+
+  <?php if ($registro_inserido): ?>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("sucessoModal").style.display = "flex";
+  });
+</script>
+<?php endif; ?>
 </body>
 </html>
