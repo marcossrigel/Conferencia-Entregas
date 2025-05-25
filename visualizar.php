@@ -1,24 +1,25 @@
 <?php
-session_start();
-include_once("config.php");
+  session_start();
+  include_once("config.php");
 
-if (!isset($_SESSION['id_fornecedor'])) {
-    header("Location: index.php");
-    exit;
-}
+  if (!isset($_SESSION['id_fornecedor'])) {
+      header("Location: index.php");
+      exit;
+  }
 
-$id_fornecedor = $_SESSION['id_fornecedor'];
-$fornecedor = $_SESSION['fornecedor'];
+  $id_fornecedor = $_SESSION['id_fornecedor'];
+  $fornecedor = $_SESSION['fornecedor'];
 
-$query = "SELECT * FROM entregas WHERE id_fornecedores = ? ORDER BY id DESC";
-$stmt = $conexao->prepare($query);
-$stmt->bind_param("i", $id_fornecedor);
-$stmt->execute();
-$resultado = $stmt->get_result();
+  $query = "SELECT * FROM entregas WHERE id_fornecedores = ? ORDER BY id DESC";
+  $stmt = $conexao->prepare($query);
+  $stmt->bind_param("i", $id_fornecedor);
+  $stmt->execute();
+  $resultado = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -112,6 +113,7 @@ $resultado = $stmt->get_result();
     }
   </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -122,6 +124,7 @@ $resultado = $stmt->get_result();
       <strong><?= htmlspecialchars($entrega['produto']) ?></strong>
       <span class="seta">⌄</span>
     </button>
+
     <div class="panel">
       <p><strong>Responsável:</strong> <?= htmlspecialchars($entrega['responsavel_recebimento']) ?></p>
       <p><strong>Quantidade:</strong> <?= htmlspecialchars($entrega['quantidade_pedida']) ?></p>
@@ -131,18 +134,29 @@ $resultado = $stmt->get_result();
          <strong>Peso Líquido:</strong> <?= htmlspecialchars($entrega['peso_liquido']) ?></p>
       <p><strong>Divergência:</strong> <?= htmlspecialchars($entrega['divergencia']) ?></p>
       <p><strong>Observações:</strong> <?= htmlspecialchars($entrega['observacoes']) ?></p>
+      
       <?php if (!empty($entrega['foto'])): ?>
         <p><strong>Foto:</strong><br><img src="uploads/<?= $entrega['foto'] ?>" width="200" style="margin-top:10px;"></p>
       <?php endif; ?>
       <?php if (!empty($entrega['assinatura_base64'])): ?>
         <p><strong>Assinatura:</strong><br><img src="uploads/<?= $entrega['assinatura_base64'] ?>" width="200" style="margin-top:10px;"></p>
+
+        <a href="excluir_entrega.php?id=<?= $entrega['id'] ?>" onclick="return confirm('Deseja realmente excluir?');">🗑️ Excluir</a>
+
       <?php endif; ?>
+      
     </div>
-  <?php endwhile; ?>
+    <?php endwhile; ?>
+    
+    <p>
+      <a href="gerar_pdf.php?id=<?= $entrega['id'] ?>" target="_blank">📄 Gerar PDF</a>
+    </p>
+
 
   <div class="botao-voltar">
     <button onclick="window.location.href='home.php';">&lt; Voltar para Home</button>
   </div>
+    
 </div>
 
 <script>
