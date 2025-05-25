@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once __DIR__ . '/vendor/autoload.php';
+require 'vendor/autoload.php';
 include("config.php");
 
 use Dompdf\Dompdf;
@@ -11,11 +11,19 @@ if (!isset($_SESSION['id_fornecedor'])) {
 }
 
 $id_fornecedor = $_SESSION['id_fornecedor'];
-$fornecedor = $_SESSION['fornecedor'] ?? 'Desconhecido';
+$tipo_usuario = $_SESSION['tipo_usuario'] ?? 'fornecedor';
 
-$stmt = $conexao->prepare("SELECT * FROM entregas WHERE id_fornecedores = ? ORDER BY id DESC");
-$stmt->bind_param("i", $id_fornecedor);
-$stmt->execute();
+if ($tipo_usuario === 'admin') {
+    $query = "SELECT * FROM entregas ORDER BY id DESC";
+    $stmt = $conexao->prepare($query);
+    $stmt->execute();
+} else {
+    $query = "SELECT * FROM entregas WHERE id_fornecedores = ? ORDER BY id DESC";
+    $stmt = $conexao->prepare($query);
+    $stmt->bind_param("i", $id_fornecedor);
+    $stmt->execute();
+}
+
 $resultado = $stmt->get_result();
 
 if ($resultado->num_rows === 0) {
@@ -23,8 +31,19 @@ if ($resultado->num_rows === 0) {
     exit;
 }
 
-ob_start(); // Inicia buffer de saída para capturar o HTML
+ob_start();
 ?>
+
+<style>
+
+img {
+  display: block;
+  margin: 5px auto;
+  max-width: 250px;
+  height: auto;
+}
+
+</style>
 
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -43,7 +62,7 @@ ob_start(); // Inicia buffer de saída para capturar o HTML
 </head>
 <body>
 
-<h1>Relatório de Entregas - <?= htmlspecialchars($fornecedor) ?></h1>
+<h1>Relatório de Entregas - <?= htmlspecialchars($_SESSION['fornecedor']) ?></h1>
 
 <?php while ($entrega = $resultado->fetch_assoc()): ?>
     <div class="entrega">
@@ -59,14 +78,26 @@ ob_start(); // Inicia buffer de saída para capturar o HTML
         <p><strong>Data:</strong> <?= htmlspecialchars($entrega['data_registro']) ?></p>
 
         <?php if (!empty($entrega['foto']) && file_exists("uploads/{$entrega['foto']}")): ?>
-            <p><strong>Foto:</strong><br>
-            <img src="uploads/<?= $entrega['foto'] ?>" alt="Foto do produto"></p>
-        <?php endif; ?>
+        <?php
+            $foto_path = "uploads/{$entrega['foto']}";
+            $foto_data = base64_encode(file_get_contents($foto_path));
+            $foto_src = 'data:image/png;base64,' . $foto_data;
+        ?>
+        <p><strong>Foto:</strong><br>
+        <img src="<?= $foto_src ?>" alt="Foto do produto"></p>
+    <?php endif; ?>
 
-        <?php if (!empty($entrega['assinatura_base64']) && file_exists("uploads/{$entrega['assinatura_base64']}")): ?>
-            <p><strong>Assinatura:</strong><br>
-            <img src="uploads/<?= $entrega['assinatura_base64'] ?>" alt="Assinatura"></p>
-        <?php endif; ?>
+    <?php if (!empty($entrega['assinatura_base64']) && file_exists("uploads/{$entrega['assinatura_base64']}")): ?>
+        <?php
+            $assinatura_path = "uploads/{$entrega['assinatura_base64']}";
+            $assinatura_data = base64_encode(file_get_contents($assinatura_path));
+            $assinatura_src = 'data:image/png;base64,' . $assinatura_data;
+        ?>
+        <p><strong>Assinatura:</strong><br>
+        <img src="<?= $assinatura_src ?>" alt="Assinatura"></p>
+    <?php endif; ?>
+        
+
     </div>
     <hr>
 <?php endwhile; ?>
@@ -75,7 +106,7 @@ ob_start(); // Inicia buffer de saída para capturar o HTML
 </html>
 
 <?php
-$html = ob_get_clean(); // Captura o HTML do buffer
+$html = ob_get_clean();
 
 $dompdf = new Dompdf();
 $dompdf->loadHtml($html);
