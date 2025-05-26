@@ -244,8 +244,8 @@ a.texto-login:hover {
       <span id="accordion-icon">⌄</span>
     </div>
     <div id="accordion-content" class="accordion-content hidden">
-      <p>Para a criar novas iniciativas clique no botão "Criar Iniciativa", você irá até um formulário onde é possível cadastrar dados iniciais de suas cidades.</p>
-      <p>No botão "Ver Contratos" é possível visualizar/editar os dados cadastrados anteriormente, e inserir novos dados em planilhas web.</p>
+      <p>Clique no botao de "Entregas" para fornecer seus dados de conferência.</p>
+      <p>No botão "Minhas Entregas" é possível visualizar os dados cadastrados anteriormente.</p>
     </div>
   </div>
 
