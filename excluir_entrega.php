@@ -17,4 +17,4 @@ $stmt->execute();
 header("Location: visualizar.php");
 exit;
 
-?>php
+?>

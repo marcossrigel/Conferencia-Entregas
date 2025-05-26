@@ -15,6 +15,7 @@
     $query = "SELECT * FROM entregas ORDER BY id DESC";
     $stmt = $conexao->prepare($query);
     $stmt->execute(); // ← ESSENCIAL AQUI
+    
 } else {
     // Fornecedor vê só as suas
     $query = "SELECT * FROM entregas WHERE id_fornecedores = ? ORDER BY id DESC";
@@ -151,6 +152,14 @@ $resultado = $stmt->get_result();
           <img src="uploads/<?= htmlspecialchars($entrega['assinatura_base64']) ?>" width="200">
         </p>
       <?php endif; ?>
+
+      <form action="excluir_entrega.php" method="get" onsubmit="return confirm('Tem certeza que deseja excluir esta entrega?');">
+      <input type="hidden" name="id" value="<?= $entrega['id'] ?>">
+      <button type="submit" style="margin: 10px 18px; padding: 8px 12px; background-color: #ff4d4d; color: white; border: none; border-radius: 8px; cursor: pointer;">
+        🗑 Excluir
+      </button>
+    </form>
+
       
     </div>
     <?php endwhile; ?>
