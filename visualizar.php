@@ -11,17 +11,15 @@
   $tipo_usuario = $_SESSION['tipo_usuario'] ?? 'fornecedor';
 
   if ($tipo_usuario === 'admin') {
-    // Admin vê tudo
     $query = "SELECT * FROM entregas ORDER BY id DESC";
     $stmt = $conexao->prepare($query);
     $stmt->execute(); // ← ESSENCIAL AQUI
     
 } else {
-    // Fornecedor vê só as suas
     $query = "SELECT * FROM entregas WHERE id_fornecedores = ? ORDER BY id DESC";
     $stmt = $conexao->prepare($query);
     $stmt->bind_param("i", $id_fornecedor);
-    $stmt->execute(); // ← ESSENCIAL AQUI TAMBÉM
+    $stmt->execute();
 }
 $resultado = $stmt->get_result();
 ?>
@@ -91,6 +89,46 @@ $resultado = $stmt->get_result();
       line-height: 1.5;
     }
 
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      max-width: 300px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .modal button {
+      margin: 10px 5px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .modal .confirm {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    .modal .cancel {
+      background-color: #bdc3c7;
+      color: black;
+    }
+
+
     .seta {
       font-size: 22px;
       transform: rotate(0deg);
@@ -145,22 +183,22 @@ $resultado = $stmt->get_result();
       <p><strong>Observações:</strong> <?= htmlspecialchars($entrega['observacoes']) ?></p>
       
       <?php if (!empty($entrega['foto'])): ?>
-        <p><strong>Foto:</strong><br><img src="uploads/<?= $entrega['foto'] ?>" width="200" style="margin-top:10px;"></p>
-      <?php endif; ?>
-      <?php if (!empty($entrega['assinatura_base64'])): ?>
-        <p><strong>Assinatura:</strong><br>
-          <img src="uploads/<?= htmlspecialchars($entrega['assinatura_base64']) ?>" width="200">
-        </p>
-      <?php endif; ?>
+    <p><strong>Foto:</strong><br><img src="uploads/<?= $entrega['foto'] ?>" width="200" style="margin-top:10px;"></p>
+    <?php endif; ?>
+    <?php if (!empty($entrega['assinatura_base64'])): ?>
+      <p><strong>Assinatura:</strong><br>
+        <img src="uploads/<?= htmlspecialchars($entrega['assinatura_base64']) ?>" width="200">
+      </p>
+    <?php endif; ?>
 
-      <form action="excluir_entrega.php" method="get" onsubmit="return confirm('Tem certeza que deseja excluir esta entrega?');">
-      <input type="hidden" name="id" value="<?= $entrega['id'] ?>">
-      <button type="submit" style="margin: 10px 18px; padding: 8px 12px; background-color: #ff4d4d; color: white; border: none; border-radius: 8px; cursor: pointer;">
-        🗑 Excluir
-      </button>
-    </form>
-
-      
+    <button 
+      type="button"
+      class="btn-excluir"
+      data-id="<?= $entrega['id'] ?>"
+      style="margin: 10px 18px; padding: 8px 12px; background-color: #ff4d4d; color: white; border: none; border-radius: 8px; cursor: pointer;">
+      🗑 Excluir
+    </button>
+     
     </div>
     <?php endwhile; ?>
     
@@ -168,23 +206,49 @@ $resultado = $stmt->get_result();
       <a href="gerar_pdf.php" target="_blank">📄 Gerar PDF</a>
     </p>
 
-
   <div class="botao-voltar">
     <button onclick="window.location.href='home.php';">&lt; Voltar para Home</button>
   </div>
     
 </div>
 
-<script>
-  const accordions = document.querySelectorAll(".accordion");
-  accordions.forEach((acc) => {
-    acc.addEventListener("click", function () {
-      this.classList.toggle("active");
-      const panel = this.nextElementSibling;
-      panel.style.display = (panel.style.display === "block") ? "none" : "block";
-    });
-  });
-</script>
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <p>Tem certeza que deseja excluir esta entrega?</p>
+    <form id="deleteForm" method="get" action="excluir_entrega.php">
+      <input type="hidden" name="id" id="deleteId">
+      <button type="submit" class="confirm">Sim, excluir</button>
+      <button type="button" class="cancel" onclick="fecharModal()">Cancelar</button>
+    </form>
+  </div>
+</div>
 
+  <script>
+    const accordions = document.querySelectorAll(".accordion");
+    const botoesExcluir = document.querySelectorAll(".btn-excluir");
+    const modal = document.getElementById("confirmModal");
+    const deleteId = document.getElementById("deleteId");
+  
+    accordions.forEach((acc) => {
+      acc.addEventListener("click", function () {
+        this.classList.toggle("active");
+        const panel = this.nextElementSibling;
+        panel.style.display = (panel.style.display === "block") ? "none" : "block";
+      });
+    });
+  
+    botoesExcluir.forEach(botao => {
+      botao.addEventListener("click", function () {
+        const entregaId = this.getAttribute("data-id");
+        deleteId.value = entregaId;
+        modal.style.display = "flex";
+      });
+    });
+  
+    function fecharModal() {
+      modal.style.display = "none";
+    }
+  
+  </script>
 </body>
 </html>
