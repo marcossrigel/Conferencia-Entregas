@@ -118,6 +118,12 @@ $nome_fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
       gap: 16px;
       flex-wrap: wrap;
     }
+
+    textarea[name="observacoes"] {
+      height: 120px;       /* Aumenta a altura vertical */
+      resize: vertical;    /* Permite redimensionar apenas na vertical */
+    }
+
     .row .col {
       flex: 1 1 100%;
       display: flex;
