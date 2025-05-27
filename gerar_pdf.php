@@ -1,6 +1,7 @@
 <?php
 session_start();
-require 'vendor/autoload.php';
+require_once 'libs/dompdf/autoload.inc.php';
+
 include("config.php");
 
 use Dompdf\Dompdf;
