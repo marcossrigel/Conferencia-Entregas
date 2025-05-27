@@ -179,7 +179,18 @@ $resultado = $stmt->get_result();
          <strong>Peso Balança:</strong> <?= htmlspecialchars($entrega['peso_balanca']) ?></p>
       <p><strong>Tara:</strong> <?= htmlspecialchars($entrega['tara']) ?> | 
          <strong>Peso Líquido:</strong> <?= htmlspecialchars($entrega['peso_liquido']) ?></p>
-      <p><strong>Divergência:</strong> <?= htmlspecialchars($entrega['divergencia']) ?></p>
+      
+      <?php
+        $div = floatval($entrega['divergencia']);
+        $status = $div < 0 ? 'Não está ok' : 'OK';
+        $cor = $div < 0 ? 'red' : 'green';
+      ?>
+      <p>
+        <strong>Divergência:</strong> 
+        <?= number_format($div, 2, ',', '') ?> 
+        <span style="color:<?= $cor ?>; font-weight: bold;">(<?= $status ?>)</span>
+      </p>
+      
       <p><strong>Observações:</strong> <?= htmlspecialchars($entrega['observacoes']) ?></p>
       
       <?php if (!empty($entrega['foto'])): ?>

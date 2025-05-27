@@ -319,17 +319,21 @@ $nome_fornecedor = $_SESSION['fornecedor'] ?? 'Não identificado';
     }
 
     function handleSubmit() {
-      document.getElementById('divergencia_oculto').value = divergenciaLabel.textContent;
-
       if (signaturePad.isEmpty()) {
         alert("Por favor, assine antes de confirmar.");
         return false;
       }
 
+      const etiqueta = parseFloat(pesoEtiquetaInput.value.replace(',', '.')) || 0;
+      const balanca = parseFloat(pesoBalancaInput.value.replace(',', '.')) || 0;
+      const diferenca = etiqueta - balanca;
+
+      document.getElementById('divergencia_oculto').value = diferenca.toFixed(2); // ← valor numérico
+
       const assinatura = signaturePad.toDataURL();
       document.getElementById('assinatura_base64').value = assinatura;
 
-      return true; // tudo OK
+      return true;
     }
 
     function saveSignature() {
